@@ -1,0 +1,16 @@
+BACKEND
+1. express: The web server framework for Node.js. It helps us create API endpoints and manage HTTP requests.
+
+2. mongoose: An elegant "Object Data Modeling" (ODM) library for MongoDB. It helps us define a structure (a "schema") for our data and interact with the database easily.
+
+3. socket.io: The library for real-time communication. This is the magic behind our chat.
+
+4. cors: A security middleware for Express that allows our frontend (running on a different port) to communicate with our backend.
+
+5. dotenv: Allows us to load environment variables from a .env file into our application. This is how we'll manage secret keys securely.
+
+6. bcryptjs: A library to hash passwords before storing them in the database. Never store plain-text passwords!
+
+7. jsonwebtoken: Used to create and verify JSON Web Tokens (JWTs) for user authentication. This is how we'll keep users logged in.
+
+8. openai: The official Node.js library for interacting with the OpenAI API.
