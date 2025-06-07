@@ -103,3 +103,18 @@ body {
 .chat-footer button:hover {
   background-color: #0056b3;
 }
+
+#ai {
+  justify-content: flex-start;
+}
+
+#ai .message {
+  background-color: #f0f8ff; /* A light, distinct color like AliceBlue */
+  color: black;
+  border: 1px solid #d4e7f7;
+}
+
+#ai .message-author {
+  color: #0056b3; /* A different color for the AI author name */
+  font-weight: bold;
+}

@@ -4,6 +4,8 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const Message = require('./models/Message');
+const messageRoutes = require('./routes/messageRoutes');
+const { getAIResponse } = require('./utils/aiService'); // Assuming you have a utility to get AI responses
 
 require('dotenv').config();
 
@@ -22,6 +24,8 @@ const io = new Server(server, {
     }
 });
 
+app.use('/api/messages', messageRoutes);
+
 app.get('/', (req, res) => {
     res.send('Unichat AI Server is running');
 });
@@ -38,6 +42,19 @@ io.on('connection', (socket) => {
 
             const savedMessage = await newMessage.save();
             io.emit('receive_message', savedMessage);
+
+            if(data.content.startsWith('/ai')){
+                const question = data.content.substring(4);
+                const aiResponseContent = await getAIResponse(question);
+
+                const aiMessage = new Message({
+                    content: aiResponseContent,
+                    author: 'Unichat AI',
+                    isAI: true,
+                });
+                const savedAIMessage = await aiMessage.save();
+                io.emit('receive_message', savedAIMessage);
+            }
         }
         catch(error){
             console.error('Error Saving Message:', error);
