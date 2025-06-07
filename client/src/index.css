@@ -118,3 +118,59 @@ body {
   color: #0056b3; /* A different color for the AI author name */
   font-weight: bold;
 }
+
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+.auth-container form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 300px;
+}
+.auth-container input {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+.auth-container button {
+  padding: 0.75rem;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+}
+.auth-container .toggle-button {
+  background: none;
+  border: none;
+  color: #007bff;
+  margin-top: 1rem;
+  cursor: pointer;
+}
+.error-message {
+  color: red;
+  margin-top: 1rem;
+}
+
+.logout-button {
+  background: #dc3545;
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: auto;
+}
+.chat-header {
+  display: flex;
+  align-items: center;
+}

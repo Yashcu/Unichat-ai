@@ -4,7 +4,7 @@ const Message = require('../models/Message');
 
 router.get('/', async (req, res) => {
     try{
-        const messages = await Message.find().sort({ timestamp: -1 });
+        const messages = await Message.find().sort({ timestamp: 1 });
         res.json(messages);
     }
     catch(error){

@@ -1,23 +1,37 @@
 import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import axios from 'axios';
+import Auth from './components/Auth';
 
 const socket = io.connect("http://localhost:4000");
 
 function App() {
-  const [username, setUsername] = useState("");
-  const [isJoined, setIsJoined] = useState(false);
+  const [user, setUser] = useState(null);
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
-  const messageEndRef = useRef(null);
-  
-  const joinChat = () => {
-    if (username !== "") {
-      setIsJoined(true);
+  const chatBodyRef = useRef(null);
+
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem('unichat-user');
+    if (loggedInUser) {
+      const foundUser = JSON.parse(loggedInUser);
+      setUser(foundUser);
     }
+  }, []);
+
+  const handleAuthSuccess = (userData) => {
+    localStorage.setItem('unichat-user', JSON.stringify(userData));
+    setUser(userData);
   };
 
-  useEffect(() =>{
+  const handleLogout = () => {
+    localStorage.removeItem('unichat-user');
+    setUser(null);
+    setMessageList([]);
+  };
+
+  // --- MESSAGE LOGIC ---
+  useEffect(() => {
     const fetchMessages = async () => {
       try {
         const response = await axios.get("http://localhost:4000/api/messages");
@@ -27,71 +41,55 @@ function App() {
       }
     };
 
-    fetchMessages();
-  }, []);
+    if (user) {
+      fetchMessages();
+    }
+  }, [user]);
 
   useEffect(() => {
     const messageListener = (data) => {
-      setMessageList((list) => [...list, data]);
+      setMessageList((prev) => [...prev, data]);
     };
-
     socket.on("receive_message", messageListener);
-
     return () => socket.off("receive_message", messageListener);
-  }, [socket]);
+  }, []);
 
   useEffect(() => {
-    if(messageEndRef.current) {
-      messageEndRef.current.scrollTop = messageEndRef.current.scrollHeight;
+    if (chatBodyRef.current) {
+      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
     }
   }, [messageList]);
-  
-  const sendMessage = async () => {
-    if (currentMessage !== "") {
-      const messageData = {
-        author: username,
-        content: currentMessage,
-      };
 
-      await socket.emit("send_message", messageData);
+  const sendMessage = async () => {
+    if (currentMessage.trim() !== "" && user) {
+      const messageData = {
+        author: user.username,
+        content: currentMessage.trim(),
+      };
+      socket.emit("send_message", messageData);
       setCurrentMessage("");
     }
   };
 
-  
-
-
-  if (!isJoined) {
-    return (
-      <div className="App">
-        <div className="chat-header"><h3>Join Unichat</h3></div>
-        <div className="chat-body" style={{justifyContent: 'center', alignItems: 'center'}}>
-          <input
-            type="text"
-            placeholder="Enter your name..."
-            onChange={(event) => setUsername(event.target.value)}
-            onKeyPress={(event) => event.key === "Enter" && joinChat()}
-          />
-          <button onClick={joinChat}>Join Chat</button>
-        </div>
-      </div>
-    );
+  // --- RENDER LOGIC ---
+  if (!user) {
+    return <Auth onAuthSuccess={handleAuthSuccess} />;
   }
-
 
   return (
     <div className="App">
       <div className="chat-header">
-        <p>Unichat AI</p>
+        <p>Welcome, {user.username}</p>
+        <button className="logout-button" onClick={handleLogout}>Logout</button>
       </div>
-      <div className="chat-body" ref={messageEndRef}>
+
+      <div className="chat-body" ref={chatBodyRef}>
         {messageList.map((messageContent) => {
           const messageId = messageContent.isAI
-          ? "ai"
-          : username === messageContent.author
-          ? "you"
-          : "other";
-
+            ? "ai"
+            : user.username === messageContent.author
+              ? "you"
+              : "other";
           return (
             <div
               className="message-container"
@@ -106,13 +104,14 @@ function App() {
           );
         })}
       </div>
+
       <div className="chat-footer">
         <input
           type="text"
           value={currentMessage}
           placeholder="Hey..."
-          onChange={(event) => setCurrentMessage(event.target.value)}
-          onKeyPress={(event) => event.key === "Enter" && sendMessage()}
+          onChange={(e) => setCurrentMessage(e.target.value)}
+          onKeyPress={(e) => e.key === "Enter" && sendMessage()}
         />
         <button onClick={sendMessage}>►</button>
       </div>

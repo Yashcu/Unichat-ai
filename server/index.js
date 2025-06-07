@@ -5,7 +5,8 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const Message = require('./models/Message');
 const messageRoutes = require('./routes/messageRoutes');
-const { getAIResponse } = require('./utils/aiService'); // Assuming you have a utility to get AI responses
+const userRoutes = require('./routes/userRoutes');
+const { getAIResponse } = require('./utils/aiService');
 
 require('dotenv').config();
 
@@ -25,6 +26,7 @@ const io = new Server(server, {
 });
 
 app.use('/api/messages', messageRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/', (req, res) => {
     res.send('Unichat AI Server is running');
